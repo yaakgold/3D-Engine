@@ -1,30 +1,95 @@
+#include "pch.h"
 #include <glad\glad.h>
-#include "SDL.h"
+#include "Engine/Graphics/Program.h"
+#include "Engine/Graphics/Renderer.h"
+#include "Engine/Graphics/Texture.h"
 
 int main(int argc, char** argv)
 {
-	int result = SDL_Init(SDL_INIT_VIDEO);
-	if (result != 0)
-	{
-		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
-	}
+	hummus::Renderer renderer;
+	renderer.Startup();
+	renderer.Create("OpenGL", 800, 600);
 
-	SDL_Window* window = SDL_CreateWindow("OpenGL", 100, 100, 800, 600, SDL_WINDOW_OPENGL);
-	if (window == nullptr)
-	{
-		SDL_Log("Failed to create windw: %s", SDL_GetError());
-	}
+	//Init
+	//float vertices[] =
+	//{
+	//	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // point1
+	//	 0.0f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f, // point2
+	//	 0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f  // point3
+	//};
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-	SDL_GL_SetSwapInterval(1);
-
-	SDL_GLContext context = SDL_GL_CreateContext(window);
-	if (!gladLoadGL())
+	static float vertices[] =
 	{
-		SDL_Log("Failed to create OpenGL context");
-		exit(-1);
-	}
+		//Front
+		-1.f, -1.f, 1.f, 0.f, 0.f,
+		1.f,  -1.f, 1.f, 1.f, 0.f,
+		1.f,  1.f,  1.f, 1.f, 1.f,
+		-1.f, 1.f,  1.f, 0.f, 1.f,
+		//Back
+		-1.f, -1.f, -1.f, 1.f, 0.f,
+		1.f,  -1.f, -1.f, 0.f, 0.f,
+		1.f,  1.f,  -1.f, 0.f, 1.f,
+		-1.f, 1.f,  -1.f, 1.f, 1.f
+	};
+
+	static GLushort indecies[] =
+	{
+		//Front
+		0, 1, 2,
+		2, 3, 0,
+		//Right
+		1, 5, 6,
+		6, 2, 1,
+		//Back
+		7, 6, 5,
+		5, 4, 7,
+		//Left
+		4, 0, 3,
+		3, 7, 4,
+		//Bottom
+		4, 5, 1,
+		1, 0, 4,
+		//Top
+		3, 2, 6,
+		6, 7, 3
+	};
+
+	hummus::Program program;
+	program.CreateShaderFromFile("Shaders\\basic.vert", GL_VERTEX_SHADER);
+	program.CreateShaderFromFile("Shaders\\basic.frag", GL_FRAGMENT_SHADER);
+	program.Link();
+	program.Use();
+
+	// create vertex buffers
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// set position pipeline (vertex attribute)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
+
+	//set uv pipeline (vertex attribute)
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	//create index buffers
+	GLuint ibo;
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indecies), indecies, GL_STATIC_DRAW);
+
+	//Uniform
+	glm::mat4 transform = glm::mat4(1.f);
+	program.SetUniform("transform", transform);
+
+	glm::mat4 projection = glm::perspective(glm::radians(45.f), 800 / 600.f, 0.01f, 1000.0f);
+	glm::mat4 view = glm::lookAt(glm::vec3(0, 2, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
+	hummus::Texture texture;
+	texture.CreateTexture("Textures\\llama.jpg");
+
 
 	bool quit = false;
 	while (!quit)
@@ -48,20 +113,20 @@ int main(int argc, char** argv)
 
 		SDL_PumpEvents();
 
-		glClearColor(0.85f, 0.85f, 0.85f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		transform = glm::rotate(transform, 0.0004f, glm::vec3(0, 1, 0));
 
-		glBegin(GL_TRIANGLES);
+		glm::mat4 mvp = projection * view * transform;
 
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glVertex2f(-0.5f, -0.5f); 
-		glColor3f(0.0f, 1.0f, 0.0f);
-		glVertex2f(0.0f, 0.5f);
-		glColor3f(0.0f, 0.0f, 1.0f);
-		glVertex2f(0.5f, -0.5f); 
-		glEnd();
+		program.SetUniform("transform", mvp);
 
-		SDL_GL_SwapWindow(window);
+		renderer.StartFrame();
+
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		GLsizei numElements = sizeof(indecies) / sizeof(GLushort);
+		glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_SHORT, 0);
+		
+		renderer.EndFrame();
+
 	}
 
 	return 0;
