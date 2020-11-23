@@ -1,14 +1,14 @@
 #include "pch.h"
 #include <glad\glad.h>
-#include "Engine/Graphics/Program.h"
-#include "Engine/Graphics/Renderer.h"
-#include "Engine/Graphics/Texture.h"
+#include "Engine/Engine.h"
 
 int main(int argc, char** argv)
 {
-	hummus::Renderer renderer;
-	renderer.Startup();
-	renderer.Create("OpenGL", 800, 600);
+	hummus::Engine engine;
+	engine.Startup();
+	//hummus::Renderer renderer;
+	//renderer.Startup();
+	//renderer.Create("OpenGL", 800, 600);
 
 	//Init
 	//float vertices[] =
@@ -81,11 +81,13 @@ int main(int argc, char** argv)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indecies), indecies, GL_STATIC_DRAW);
 
 	//Uniform
-	glm::mat4 transform = glm::mat4(1.f);
-	program.SetUniform("transform", transform);
+	glm::mat4 model = glm::mat4(1.f);
+	program.SetUniform("transform", model);
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.f), 800 / 600.f, 0.01f, 1000.0f);
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 2, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
+	glm::vec3 eye{ 0, 0, 5 };
+	glm::mat4 view = glm::lookAt(eye, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
 	hummus::Texture texture;
 	texture.CreateTexture("Textures\\llama.jpg");
@@ -112,22 +114,58 @@ int main(int argc, char** argv)
 		}
 
 		SDL_PumpEvents();
+		engine.Update();
 
-		transform = glm::rotate(transform, 0.0004f, glm::vec3(0, 1, 0));
+		model = glm::rotate(model, glm::pi<float>() * engine.GetTimer().DeltaTime(), glm::vec3(0, 1, 0));
 
-		glm::mat4 mvp = projection * view * transform;
+		float angle = 0;
+
+#pragma region Inputs
+		if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_A) == hummus::InputSystem::eButtonState::HELD)
+		{
+			eye.x -= 4 * engine.GetTimer().DeltaTime();
+		}
+		else if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_D) == hummus::InputSystem::eButtonState::HELD)
+		{
+			eye.x += 4 * engine.GetTimer().DeltaTime();
+		}
+
+		if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_W) == hummus::InputSystem::eButtonState::HELD)
+		{
+			eye.z -= 4 * engine.GetTimer().DeltaTime();
+		}
+		else if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_S) == hummus::InputSystem::eButtonState::HELD)
+		{
+			eye.z += 4 * engine.GetTimer().DeltaTime();
+		}
+
+		if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_Q) == hummus::InputSystem::eButtonState::HELD)
+		{
+			eye.y += 4 * engine.GetTimer().DeltaTime();
+		}
+		else if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_E) == hummus::InputSystem::eButtonState::HELD)
+		{
+			eye.y -= 4 * engine.GetTimer().DeltaTime();
+		}
+#pragma endregion
+
+		view = glm::lookAt(eye, eye + glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
+
+		glm::mat4 mvp = projection * view * model;
 
 		program.SetUniform("transform", mvp);
 
-		renderer.StartFrame();
+		engine.GetSystem<hummus::Renderer>()->StartFrame();
 
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		GLsizei numElements = sizeof(indecies) / sizeof(GLushort);
 		glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_SHORT, 0);
 		
-		renderer.EndFrame();
+		engine.GetSystem<hummus::Renderer>()->EndFrame();
 
 	}
+
+	engine.Shutdown();	
 
 	return 0;
 }
