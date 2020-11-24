@@ -1,6 +1,7 @@
 #include "pch.h"
 #include <glad\glad.h>
 #include "Engine/Engine.h"
+#include "Engine/Graphics/VertexIndexArray.h"
 
 int main(int argc, char** argv)
 {
@@ -61,28 +62,19 @@ int main(int argc, char** argv)
 	program.Use();
 
 	// create vertex buffers
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// set position pipeline (vertex attribute)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
-	glEnableVertexAttribArray(0);
-
-	//set uv pipeline (vertex attribute)
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	hummus::VertexIndexArray vertexArray;
+	vertexArray.Create("vertex");
+	vertexArray.CreateBuffer(sizeof(vertices), sizeof(vertices) / (sizeof(float) * 5), vertices);
+	vertexArray.SetAttribute(0, 3, 5 * sizeof(float), 0);
+	vertexArray.SetAttribute(1, 2, 5 * sizeof(float), 3 * sizeof(float));
 
 	//create index buffers
-	GLuint ibo;
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indecies), indecies, GL_STATIC_DRAW);
+	vertexArray.CreateIndexBuffer(GL_UNSIGNED_SHORT, sizeof(indecies) / sizeof(GLushort), indecies);
 
 	//Uniform
 	glm::mat4 model = glm::mat4(1.f);
 	program.SetUniform("transform", model);
+
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.f), 800 / 600.f, 0.01f, 1000.0f);
 
@@ -158,9 +150,11 @@ int main(int argc, char** argv)
 		engine.GetSystem<hummus::Renderer>()->StartFrame();
 
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		GLsizei numElements = sizeof(indecies) / sizeof(GLushort);
-		glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_SHORT, 0);
+		//GLsizei numElements = sizeof(indecies) / sizeof(GLushort);
+		//glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_SHORT, 0);
 		
+		vertexArray.Draw();
+
 		engine.GetSystem<hummus::Renderer>()->EndFrame();
 
 	}
