@@ -7,69 +7,140 @@ int main(int argc, char** argv)
 {
 	hummus::Engine engine;
 	engine.Startup();
-	//hummus::Renderer renderer;
-	//renderer.Startup();
-	//renderer.Create("OpenGL", 800, 600);
 
-	//Init
-	//float vertices[] =
+#pragma region OldVerts
+
+	//static float vertices[] =
 	//{
-	//	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // point1
-	//	 0.0f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f, // point2
-	//	 0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f  // point3
+	//	//Front
+	//	-1.f, -1.f, 1.f, 0.f, 0.f,
+	//	1.f,  -1.f, 1.f, 1.f, 0.f,
+	//	1.f,  1.f,  1.f, 1.f, 1.f,
+	//	-1.f, 1.f,  1.f, 0.f, 1.f,
+	//	//Back
+	//	-1.f, -1.f, -1.f, 1.f, 0.f,
+	//	1.f,  -1.f, -1.f, 0.f, 0.f,
+	//	1.f,  1.f,  -1.f, 0.f, 1.f,
+	//	-1.f, 1.f,  -1.f, 1.f, 1.f
 	//};
+
+	//static GLushort indecies[] =
+	//{
+	//	//Front
+	//	0, 1, 2,
+	//	2, 3, 0,
+	//	//Right
+	//	1, 5, 6,
+	//	6, 2, 1,
+	//	//Back
+	//	7, 6, 5,
+	//	5, 4, 7,
+	//	//Left
+	//	4, 0, 3,
+	//	3, 7, 4,
+	//	//Bottom
+	//	4, 5, 1,
+	//	1, 0, 4,
+	//	//Top
+	//	3, 2, 6,
+	//	6, 7, 3
+	//};
+#pragma endregion
 
 	static float vertices[] =
 	{
-		//Front
-		-1.f, -1.f, 1.f, 0.f, 0.f,
-		1.f,  -1.f, 1.f, 1.f, 0.f,
-		1.f,  1.f,  1.f, 1.f, 1.f,
-		-1.f, 1.f,  1.f, 0.f, 1.f,
-		//Back
-		-1.f, -1.f, -1.f, 1.f, 0.f,
-		1.f,  -1.f, -1.f, 0.f, 0.f,
-		1.f,  1.f,  -1.f, 0.f, 1.f,
-		-1.f, 1.f,  -1.f, 1.f, 1.f
-	};
+		-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f,
 
-	static GLushort indecies[] =
-	{
-		//Front
-		0, 1, 2,
-		2, 3, 0,
-		//Right
-		1, 5, 6,
-		6, 2, 1,
-		//Back
-		7, 6, 5,
-		5, 4, 7,
-		//Left
-		4, 0, 3,
-		3, 7, 4,
-		//Bottom
-		4, 5, 1,
-		1, 0, 4,
-		//Top
-		3, 2, 6,
-		6, 7, 3
+		-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+
+		-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f,
+
+		 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
+		 1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
+		 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
+		 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,
+		 1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
+		 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f,
+
+		-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
+		 1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
+		 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
+		 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
+		-1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f,
+		-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f,
+
+		-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+		 1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+		 1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		 1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		-1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+		-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f
 	};
 
 	hummus::Program program;
-	program.CreateShaderFromFile("Shaders\\basic.vert", GL_VERTEX_SHADER);
-	program.CreateShaderFromFile("Shaders\\basic.frag", GL_FRAGMENT_SHADER);
+	program.CreateShaderFromFile("Shaders\\phong.vert", GL_VERTEX_SHADER);
+	program.CreateShaderFromFile("Shaders\\phong.frag", GL_FRAGMENT_SHADER);
 	program.Link();
 	program.Use();
 
+#pragma region OldCode
+
+
 	// create vertex buffers
-	hummus::VertexIndexArray vertexArray;
+	/*hummus::VertexIndexArray vertexArray;
 	vertexArray.Create("vertex");
 	vertexArray.CreateBuffer(sizeof(vertices), sizeof(vertices) / (sizeof(float) * 5), vertices);
 	vertexArray.SetAttribute(0, 3, 5 * sizeof(float), 0);
-	vertexArray.SetAttribute(1, 2, 5 * sizeof(float), 3 * sizeof(float));
-
+	vertexArray.SetAttribute(1, 2, 5 * sizeof(float), 3 * sizeof(float));*/
+	
 	//create index buffers
-	vertexArray.CreateIndexBuffer(GL_UNSIGNED_SHORT, sizeof(indecies) / sizeof(GLushort), indecies);
+	//vertexArray.CreateIndexBuffer(GL_UNSIGNED_SHORT, sizeof(indecies) / sizeof(GLushort), indecies);
+#pragma endregion
+	
+	hummus::VertexArray vertexArray;
+	vertexArray.Create("vertex");
+
+	std::vector<glm::vec3> positions;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec2> texcoords;
+	hummus::Model::Load("models/ogre.obj", positions, normals, texcoords);
+
+	if (!positions.empty())
+	{
+		vertexArray.CreateBuffer(positions.size() * sizeof(glm::vec3), static_cast<GLsizei>(positions.size()), positions.data());
+		vertexArray.SetAttribute(0, 3, 0, 0);
+	}
+
+	if (!normals.empty())
+	{
+		vertexArray.CreateBuffer(normals.size() * sizeof(glm::vec3), static_cast<GLsizei>(normals.size()), normals.data());
+		vertexArray.SetAttribute(1, 3, 0, 0);
+	}
+
+	if (!texcoords.empty())
+	{
+		vertexArray.CreateBuffer(texcoords.size() * sizeof(glm::vec2), static_cast<GLsizei>(texcoords.size()), texcoords.data());
+		vertexArray.SetAttribute(2, 2, 0, 0);
+	}
+
+	//vertexArray.CreateBuffer(sizeof(vertices), sizeof(vertices) / (sizeof(float) * 6), vertices);
+	//vertexArray.SetAttribute(0, 3, 6 * sizeof(float), 0);
+	//vertexArray.SetAttribute(1, 3, 6 * sizeof(float), 3 * sizeof(float));
 
 	//Uniform
 	glm::mat4 model = glm::mat4(1.f);
@@ -82,8 +153,17 @@ int main(int argc, char** argv)
 	glm::mat4 view = glm::lookAt(eye, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
 	hummus::Texture texture;
-	texture.CreateTexture("Textures\\llama.jpg");
+	texture.CreateTexture("Textures\\ogre_diffuse_flip.bmp");
 
+	program.SetUniform("material.ambient", glm::vec3{ 1, 1, 1 });
+	program.SetUniform("material.diffuse", glm::vec3{ 1, 1, 1 });
+	program.SetUniform("material.specular", glm::vec3{ 1, 1, 1 });
+	program.SetUniform("material.shininess", 128.f);
+
+	program.SetUniform("light.ambient", glm::vec3{ .1f, .1f, .1f });
+	program.SetUniform("light.diffuse", glm::vec3{ 1, 1, 1 });
+	program.SetUniform("light.specular", glm::vec3{ 1, 1, 1 });
+	glm::vec4 light{ 5, 5, 5, 1 };
 
 	bool quit = false;
 	while (!quit)
@@ -145,14 +225,16 @@ int main(int argc, char** argv)
 
 		glm::mat4 mvp = projection * view * model;
 
-		program.SetUniform("transform", mvp);
+		program.SetUniform("mvp", mvp);
+
+		glm::mat4 model_View = view * model;
+		program.SetUniform("model_View", model_View);
+
+		glm::vec4 position = view * light;
+		program.SetUniform("light.position", position);
 
 		engine.GetSystem<hummus::Renderer>()->StartFrame();
 
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		//GLsizei numElements = sizeof(indecies) / sizeof(GLushort);
-		//glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_SHORT, 0);
-		
 		vertexArray.Draw();
 
 		engine.GetSystem<hummus::Renderer>()->EndFrame();
