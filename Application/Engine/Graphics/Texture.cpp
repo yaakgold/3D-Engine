@@ -16,6 +16,9 @@ namespace hummus
 
 	bool Texture::CreateTexture(const std::string& fileName, GLenum target, GLuint uint)
 	{
+		m_target = target;
+		m_unit = uint;
+
 		SDL_Surface* surface = IMG_Load(fileName.c_str());
 		if (surface == nullptr)
 		{

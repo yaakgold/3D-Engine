@@ -8,6 +8,8 @@ int main(int argc, char** argv)
 	hummus::Engine engine;
 	engine.Startup();
 
+	hummus::Scene scene{ &engine };
+
 #pragma region OldVerts
 
 	//static float vertices[] =
@@ -107,18 +109,18 @@ int main(int argc, char** argv)
 	vertexArray.CreateBuffer(sizeof(vertices), sizeof(vertices) / (sizeof(float) * 5), vertices);
 	vertexArray.SetAttribute(0, 3, 5 * sizeof(float), 0);
 	vertexArray.SetAttribute(1, 2, 5 * sizeof(float), 3 * sizeof(float));*/
-	
+
 	//create index buffers
 	//vertexArray.CreateIndexBuffer(GL_UNSIGNED_SHORT, sizeof(indecies) / sizeof(GLushort), indecies);
 #pragma endregion
-	
+
 	hummus::VertexArray vertexArray;
 	vertexArray.Create("vertex");
 
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texcoords;
-	hummus::Model::Load("models/ogre.obj", positions, normals, texcoords);
+	hummus::Model::Load("models/cube.obj", positions, normals, texcoords);
 
 	if (!positions.empty())
 	{
@@ -146,24 +148,26 @@ int main(int argc, char** argv)
 	glm::mat4 model = glm::mat4(1.f);
 	program.SetUniform("transform", model);
 
-
-	glm::mat4 projection = glm::perspective(glm::radians(45.f), 800 / 600.f, 0.01f, 1000.0f);
-
+	//camera
 	glm::vec3 eye{ 0, 0, 5 };
-	glm::mat4 view = glm::lookAt(eye, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	hummus::Camera cam{ "Camera" };
+	scene.Add(&cam);
+	cam.SetProjection(45.f, 800 / 600.f, 0.01f, 1000.0f);
+	cam.SetLookAt(eye, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
+	//glm::mat4 projection = glm::perspective(glm::radians(45.f), 800 / 600.f, 0.01f, 1000.0f);
+	//glm::mat4 view = glm::lookAt(eye, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
 
 	hummus::Texture texture;
 	texture.CreateTexture("Textures\\ogre_diffuse_flip.bmp");
 
-	program.SetUniform("material.ambient", glm::vec3{ 1, 1, 1 });
-	program.SetUniform("material.diffuse", glm::vec3{ 1, 1, 1 });
-	program.SetUniform("material.specular", glm::vec3{ 1, 1, 1 });
-	program.SetUniform("material.shininess", 128.f);
+	hummus::Material mat{ glm::vec3{ 1 }, glm::vec3{ 1 }, glm::vec3{ 1 }, 32.0f };
+	mat.AddTexture(texture);
+	mat.SetProgram(program);
 
-	program.SetUniform("light.ambient", glm::vec3{ .1f, .1f, .1f });
-	program.SetUniform("light.diffuse", glm::vec3{ 1, 1, 1 });
-	program.SetUniform("light.specular", glm::vec3{ 1, 1, 1 });
-	glm::vec4 light{ 5, 5, 5, 1 };
+	hummus::Light light{ "light", hummus::Transform{{5, 2, 5}}, glm::vec3{ 0.1f }, glm::vec3{ 1 }, glm::vec3{ 1 } };
+	scene.Add(&light);
 
 	bool quit = false;
 	while (!quit)
@@ -188,50 +192,27 @@ int main(int argc, char** argv)
 		SDL_PumpEvents();
 		engine.Update();
 
+		scene.Update(engine.GetTimer().DeltaTime());
+
 		model = glm::rotate(model, glm::pi<float>() * engine.GetTimer().DeltaTime(), glm::vec3(0, 1, 0));
 
 		float angle = 0;
 
-#pragma region Inputs
-		if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_A) == hummus::InputSystem::eButtonState::HELD)
-		{
-			eye.x -= 4 * engine.GetTimer().DeltaTime();
-		}
-		else if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_D) == hummus::InputSystem::eButtonState::HELD)
-		{
-			eye.x += 4 * engine.GetTimer().DeltaTime();
-		}
-
-		if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_W) == hummus::InputSystem::eButtonState::HELD)
-		{
-			eye.z -= 4 * engine.GetTimer().DeltaTime();
-		}
-		else if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_S) == hummus::InputSystem::eButtonState::HELD)
-		{
-			eye.z += 4 * engine.GetTimer().DeltaTime();
-		}
-
-		if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_Q) == hummus::InputSystem::eButtonState::HELD)
-		{
-			eye.y += 4 * engine.GetTimer().DeltaTime();
-		}
-		else if (engine.GetSystem<hummus::InputSystem>()->GetButtonState(SDL_SCANCODE_E) == hummus::InputSystem::eButtonState::HELD)
-		{
-			eye.y -= 4 * engine.GetTimer().DeltaTime();
-		}
-#pragma endregion
-
-		view = glm::lookAt(eye, eye + glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
-
-		glm::mat4 mvp = projection * view * model;
+		glm::mat4 mvp = cam.projection() * cam.view() * model;
 
 		program.SetUniform("mvp", mvp);
 
-		glm::mat4 model_View = view * model;
+		glm::mat4 model_View = cam.view() * model;
 		program.SetUniform("model_View", model_View);
 
-		glm::vec4 position = view * light;
-		program.SetUniform("light.position", position);
+		std::vector<hummus::Light*> lights = scene.Get<hummus::Light>();
+		for (auto l : lights)
+		{
+			l->SetProgram(program);
+		}
+
+		//glm::vec4 position = cam.view() * light;
+		//program.SetUniform("light.position", position);
 
 		engine.GetSystem<hummus::Renderer>()->StartFrame();
 

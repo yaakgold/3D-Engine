@@ -37,6 +37,9 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{8ed382da-063e-4c0d-818c-8a4dfd977da4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Objects">
+      <UniqueIdentifier>{03e56de5-96bf-4065-916f-608849d950cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -89,6 +92,21 @@
     </ClCompile>
     <ClCompile Include="Engine\Math\Transform.cpp">
       <Filter>Source\Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Material.cpp">
+      <Filter>Source\Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Objects\Object.cpp">
+      <Filter>Source\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Objects\Scene.cpp">
+      <Filter>Source\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Objects\Light.cpp">
+      <Filter>Source\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Objects\Camera.cpp">
+      <Filter>Source\Engine\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +169,21 @@
     </ClInclude>
     <ClInclude Include="Engine\Math\Transform.h">
       <Filter>Source\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Material.h">
+      <Filter>Source\Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Objects\Scene.h">
+      <Filter>Source\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Objects\Camera.h">
+      <Filter>Source\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Objects\Light.h">
+      <Filter>Source\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Objects\Object.h">
+      <Filter>Source\Engine\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

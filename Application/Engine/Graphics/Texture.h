@@ -11,6 +11,7 @@ namespace hummus
 		bool Create(const std::string& fileName, void* null) override;
 		void Destroy() override;
 
+		void Bind() { glBindTexture(m_target, m_texture); }
 		bool CreateTexture(const std::string& filename, GLenum target = GL_TEXTURE_2D, GLuint uint = GL_TEXTURE0);
 
 	protected:
