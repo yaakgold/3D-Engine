@@ -13,6 +13,9 @@ namespace hummus
 	
 	void Scene::Draw()
 	{
-
+		for (Object* obj : m_objects)
+		{
+			obj->Draw();
+		}
 	}
 }
